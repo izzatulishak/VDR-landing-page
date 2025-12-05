@@ -1,6 +1,6 @@
 import React, { useRef, useState, useMemo } from 'react';
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
-import { OrbitControls, Stars, Html } from '@react-three/drei';
+import { OrbitControls, Stars, Html, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import Earth from './Earth';
 import BlockMarkers from './BlockMarkers';
@@ -86,21 +86,10 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
     const earthRadius = 6.371;
     const controlsRef = useRef();
     const { camera } = useThree();
+    const satelliteGroupRef = useRef();
 
-    // Indonesia Coordinates (Approximate Center)
-    // Latitude: -2.5, Longitude: 118.0
-    // Convert to Vector3 on sphere surface (Radius ~6.5 for satellite orbit)
-    const satellitePosition = useMemo(() => {
-        const lat = -2.5;
-        const lon = 118.0;
-        const radius = 9.5; // Orbit radius (Increased to prevent overlap)
-        const phi = (90 - lat) * (Math.PI / 180);
-        const theta = (lon + 180) * (Math.PI / 180);
-        const x = -(radius * Math.sin(phi) * Math.cos(theta));
-        const z = (radius * Math.sin(phi) * Math.sin(theta));
-        const y = (radius * Math.cos(phi));
-        return [x, y, z];
-    }, []);
+    // Calculate satellite position relative to camera
+    const [satellitePosition, setSatellitePosition] = useState([0, 0, 0]);
 
     const groupRef = useRef();
 
@@ -111,7 +100,24 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
             controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 0.05);
         }
 
-        // Rotate the entire group (Earth + Satellite + Blocks) together
+        // Update satellite position to follow camera
+        if (camera) {
+            // Get camera direction
+            const cameraDirection = new THREE.Vector3();
+            camera.getWorldDirection(cameraDirection);
+
+            // Position satellite in front of camera, offset to the left and down
+            const distance = 9.5; // Distance from Earth center
+            const offset = new THREE.Vector3(-1.5, -0.8, 0); // Offset to left and down
+
+            // Calculate position based on camera direction
+            const basePosition = cameraDirection.clone().multiplyScalar(-distance);
+            const finalPosition = basePosition.add(offset);
+
+            setSatellitePosition([finalPosition.x, finalPosition.y, finalPosition.z]);
+        }
+
+        // Rotate the entire group (Earth + Blocks) together
         if (groupRef.current && isAutoRotating && !isFocused) {
             groupRef.current.rotation.y += 0.0002;
         }
@@ -139,7 +145,7 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
             {/* Atmosphere Glow */}
             <AtmosphereGlow radius={earthRadius} />
 
-            <group ref={groupRef} rotation={[0, 0, 0.41]}> {/* Earth Tilt */}
+            <group ref={groupRef} rotation={[0, -2.1, 0.41]}> {/* Initial rotation to show Indonesia + Earth Tilt */}
                 <Earth />
 
                 {/* Exploration Block Markers */}
@@ -151,15 +157,17 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
                         selectedBlock={selectedBlock}
                     />
                 </React.Suspense>
-
-                {/* Satellite positioned over Indonesia */}
-                <Satellite
-                    position={satellitePosition}
-                    scale={[0.02, 0.02, 0.02]}
-                    rotation={[0.5, 2, 0]}
-                    onClick={onSatelliteClick}
-                />
             </group>
+
+            {/* Satellite positioned to follow camera */}
+            <Satellite
+                position={satellitePosition}
+                scale={[0.02, 0.02, 0.02]}
+                rotation={[0.5, 2, 0]}
+            />
+
+            {/* Environment Map for realistic reflections */}
+            <Environment preset="sunset" />
 
             <OrbitControls
                 ref={controlsRef}
@@ -168,8 +176,8 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
                 enableRotate={true}
                 zoomSpeed={0.6}
                 rotateSpeed={0.5}
-                minDistance={8}
-                maxDistance={20}
+                minDistance={7}
+                maxDistance={25}
                 autoRotate={isAutoRotating}
                 autoRotateSpeed={0.2}
             />
@@ -184,7 +192,10 @@ const Globe3D = ({ onBlockSelect, selectedBlock, theme, onSatelliteClick }) => {
     return (
         <div className="w-full h-full bg-black relative">
             <Canvas
-                camera={{ position: [0, 0, 18], fov: 45 }}
+                camera={{
+                    position: [10, 3.5, 10.5], // Zoomed in closer, Indonesia on left side
+                    fov: 50
+                }}
                 gl={{
                     antialias: true,
                     toneMapping: THREE.ACESFilmicToneMapping,

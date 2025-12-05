@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { useFrame, useLoader } from '@react-three/fiber';
 import { TextureLoader } from 'three';
 import * as THREE from 'three';
+import CountryBorders from './CountryBorders';
 
 const Earth = ({ radius = 6.371, rotationSpeed = 0.001 }) => {
     const earthRef = useRef();
@@ -83,6 +84,9 @@ const Earth = ({ radius = 6.371, rotationSpeed = 0.001 }) => {
                     depthWrite={false}
                 />
             </mesh>
+
+            {/* Country Borders */}
+            <CountryBorders radius={radius} />
         </group>
     );
 };
