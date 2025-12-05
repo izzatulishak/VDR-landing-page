@@ -1,0 +1,1 @@
+import{j7 as t}from"./index-CeBxY8tu.js";class a extends t{constructor(e,s){super(e,s,"webmap")}}function o(r){return r!=null&&typeof r=="object"&&"declaredClass"in r&&r.declaredClass==="esri.WebMap"}new a(2,35);export{o as r};
