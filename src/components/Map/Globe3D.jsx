@@ -135,7 +135,7 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
             <Stars
                 radius={300}
                 depth={60}
-                count={5000} // Reduced for performance
+                count={3000} // Reduced for better performance
                 factor={7}
                 saturation={0}
                 fade
@@ -199,11 +199,24 @@ const Globe3D = ({ onBlockSelect, selectedBlock, theme, onSatelliteClick }) => {
                 gl={{
                     antialias: true,
                     toneMapping: THREE.ACESFilmicToneMapping,
-                    outputColorSpace: THREE.SRGBColorSpace
+                    outputColorSpace: THREE.SRGBColorSpace,
+                    powerPreference: "high-performance",
+                    alpha: false,
+                    stencil: false,
+                    depth: true
                 }}
                 shadows
+                dpr={[1, 2]} // Adaptive pixel ratio for performance
+                performance={{ min: 0.5 }} // Adaptive performance
+                onCreated={({ gl }) => {
+                    gl.setClearColor('#000000', 1);
+                }}
             >
-                <React.Suspense fallback={null}>
+                <React.Suspense fallback={
+                    <Html center>
+                        <div className="text-white text-lg">Loading Globe...</div>
+                    </Html>
+                }>
                     <GlobeScene
                         onBlockSelect={onBlockSelect}
                         selectedBlock={selectedBlock}

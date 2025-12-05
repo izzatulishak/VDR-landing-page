@@ -8,7 +8,7 @@ const Satellite = ({ position, scale, rotation, onClick }) => {
     const [hovered, setHovered] = useState(false);
 
     // Load the ISS GLB model
-    const { scene } = useGLTF('/models/ISS_stationary.glb');
+    const { scene } = useGLTF(`${import.meta.env.BASE_URL}models/ISS_stationary.glb`);
 
     // Clone the scene to avoid issues with multiple instances
     const clonedScene = scene.clone();
@@ -65,6 +65,6 @@ const Satellite = ({ position, scale, rotation, onClick }) => {
 };
 
 // Preload the model
-useGLTF.preload('/models/ISS_stationary.glb');
+useGLTF.preload(`${import.meta.env.BASE_URL}models/ISS_stationary.glb`);
 
 export default Satellite;
