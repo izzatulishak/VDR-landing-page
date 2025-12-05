@@ -9,10 +9,10 @@ const Earth = ({ radius = 6.371, rotationSpeed = 0.001 }) => {
 
     // Load realistic textures
     const [colorMap, normalMap, specularMap, cloudsMap] = useLoader(TextureLoader, [
-        '/textures/earth-night.jpg',
-        '/textures/earth-topology.png',
-        '/textures/earth-water.png',
-        '/textures/earth-clouds.png'
+        `${import.meta.env.BASE_URL}textures/earth-night.jpg`,
+        `${import.meta.env.BASE_URL}textures/earth-topology.png`,
+        `${import.meta.env.BASE_URL}textures/earth-water.png`,
+        `${import.meta.env.BASE_URL}textures/earth-clouds.png`
     ]);
 
     useFrame(() => {

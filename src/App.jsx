@@ -7,6 +7,10 @@ import ArcGISMap from './components/Map/ArcGISMap';
 import Globe3D from './components/Map/Globe3D';
 import eastNatunaData from './data/east-natuna.json';
 import { AnimatePresence } from 'framer-motion';
+import logoImg from './assets/logo.png';
+import taglineImg from './assets/Tagline.png';
+import SearchBar from './components/UI/SearchBar';
+import blockData from './data/exploration-blocks.json';
 
 function App() {
   // UI State
@@ -82,13 +86,21 @@ function App() {
     setViewMode('map'); // Switch to map view when satellite is clicked on globe
   };
 
+  const handleSearch = (block) => {
+    setViewMode('map');
+    setSelectedBlock(block);
+  };
+
+  // Extract searchable data
+  const searchableData = blockData.features.map(f => f.properties);
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-bg text-text-primary transition-colors duration-300" data-theme={theme}>
 
       {/* 1. Header (Top-Left) */}
       <div className="absolute top-6 left-8 z-50 pointer-events-none flex items-center gap-4">
         {/* Logo */}
-        <img src="/src/assets/logo.png" alt="Logo" className="h-8 w-auto opacity-90 drop-shadow-2xl" />
+        <img src={logoImg} alt="Logo" className="h-8 w-auto opacity-90 drop-shadow-2xl" />
 
         {/* Text Block - Expensive Aesthetic */}
         <div className="flex flex-col items-start justify-center">
@@ -101,9 +113,14 @@ function App() {
         </div>
       </div>
 
+      {/* Search Bar (Top Center) */}
+      <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
+        <SearchBar data={searchableData} onSearch={handleSearch} />
+      </div>
+
       {/* 2. Main Content Area (Map Background) */}
       <div className="absolute inset-0 z-0">
-        {viewMode === 'arcgis' ? (
+        {viewMode === 'map' ? (
           <ArcGISMap
             onBlockHover={handleBlockHover}
             onBlockLeave={handleBlockLeave}
@@ -149,7 +166,7 @@ function App() {
           Powered by
         </span>
         <img
-          src="/src/assets/Tagline.png"
+          src={taglineImg}
           alt="Powered by"
           className="h-5 w-auto grayscale brightness-125"
         />

@@ -11,7 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import config from '@arcgis/core/config';
 
 // Set assets path to local public/assets
-config.assetsPath = "/assets";
+config.assetsPath = import.meta.env.BASE_URL + "assets";
 
 // Helper to convert hex to [r, g, b]
 const hexToRgb = (hex) => {
@@ -32,6 +32,8 @@ const ArcGISMap = ({ onBlockHover, onBlockLeave, onBlockSelect, filter, theme, s
     const hoverAnimationRef = useRef(null);
     const activeAnimationRef = useRef(null);
     const [isRotating, setIsRotating] = useState(false);
+
+    const [mapReady, setMapReady] = useState(false);
 
     console.log("ArcGISMap rendering...");
 
@@ -192,6 +194,12 @@ const ArcGISMap = ({ onBlockHover, onBlockLeave, onBlockSelect, filter, theme, s
             viewRef.current = view;
             layerRef.current = geojsonLayer;
 
+            // Mark map as ready when view is ready
+            view.when(() => {
+                console.log("SceneView is ready!");
+                setMapReady(true);
+            });
+
             return () => {
                 if (view) view.destroy();
                 URL.revokeObjectURL(url);
@@ -232,6 +240,29 @@ const ArcGISMap = ({ onBlockHover, onBlockLeave, onBlockSelect, filter, theme, s
             layerRef.current.definitionExpression = filter === 'all' ? null : `status = '${filter.toUpperCase()}'`;
         }
     }, [filter]);
+
+    // Zoom to Selected Block
+    useEffect(() => {
+        console.log("Zoom Effect Triggered. selectedBlock:", selectedBlock, "mapReady:", mapReady);
+        if (selectedBlock && mapReady && viewRef.current && layerRef.current) {
+            console.log("Attempting to zoom to block:", selectedBlock.namobj);
+            const query = layerRef.current.createQuery();
+            query.where = `namobj = '${selectedBlock.namobj}'`;
+            layerRef.current.queryFeatures(query).then((response) => {
+                if (response.features.length > 0) {
+                    const feature = response.features[0];
+                    console.log("Feature found, zooming...", feature);
+                    viewRef.current.goTo({
+                        target: feature.geometry,
+                        tilt: 45,
+                        zoom: 9 // Adjust zoom level as needed
+                    }, { duration: 1000 });
+                } else {
+                    console.warn("No feature found for block:", selectedBlock.namobj);
+                }
+            }).catch(err => console.error("Query failed:", err));
+        }
+    }, [selectedBlock, mapReady]);
 
     return (
         <div className="w-full h-full relative group" ref={mapDiv} style={{ width: '100%', height: '100%', position: 'relative' }}>

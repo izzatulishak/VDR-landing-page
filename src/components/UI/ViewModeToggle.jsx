@@ -6,10 +6,10 @@ const ViewModeToggle = ({ viewMode, toggleViewMode }) => {
     return (
         <div className="flex items-center gap-1">
             <button
-                onClick={() => toggleViewMode('arcgis')}
+                onClick={() => toggleViewMode('map')}
                 className={twMerge(
                     "p-2 rounded-lg transition-all flex items-center gap-2 text-xs font-medium",
-                    viewMode === 'arcgis'
+                    viewMode === 'map'
                         ? "text-accent bg-accent/10"
                         : "text-white/50 hover:text-white hover:bg-white/5"
                 )}

@@ -18,8 +18,8 @@ export default {
                 'text-primary': 'var(--color-text-primary)',
                 'text-secondary': 'var(--color-text-secondary)',
                 accent: {
-                    DEFAULT: '#a855f7', // Purple-500
-                    hover: '#9333ea',   // Purple-600
+                    DEFAULT: '#3A6FF8', // Blue-500 (Reverted)
+                    hover: '#2563eb',   // Blue-600
                 },
                 header: {
                     bg: 'var(--header-bg)',

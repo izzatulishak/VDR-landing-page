@@ -120,7 +120,6 @@ const LeftDataLayersPanel = ({ onLayerToggle, activeFilter, setActiveFilter }) =
                 <div className="p-5 border-b border-white/5 flex items-center justify-between bg-surface/20">
                     <div>
                         <h2 className="text-lg font-bold flex items-center gap-2 text-text-primary">
-                            <Filter className="w-5 h-5 text-accent" />
                             Data Layers
                         </h2>
                     </div>

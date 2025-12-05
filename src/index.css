@@ -31,9 +31,9 @@ body,
   --color-border: #E5E7EB;
   --color-text-primary: #111827;
   --color-text-secondary: #4B5563;
-  --color-accent: #2563EB;
-  /* Blue 600 */
-  --color-accent-hover: #1D4ED8;
+  --color-accent: #3A6FF8;
+  /* Blue Custom */
+  --color-accent-hover: #2563EB;
   --color-danger: #EF4444;
   --color-success: #10B981;
   --color-warning: #F59E0B;
@@ -65,9 +65,9 @@ body,
   --color-border: #262626;
   --color-text-primary: #F9FAFB;
   --color-text-secondary: #9CA3AF;
-  --color-accent: #3B82F6;
-  /* Blue 500 */
-  --color-accent-hover: #60A5FA;
+  --color-accent: #3A6FF8;
+  /* Blue Custom */
+  --color-accent-hover: #2563EB;
 
   /* Header Specific - Dark */
   --header-bg: rgba(10, 10, 10, 0.65);
