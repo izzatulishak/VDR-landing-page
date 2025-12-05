@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic Test Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        .test {
+            background: #2a2a2a;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 4px solid #4CAF50;
+        }
+        .error {
+            border-left-color: #f44336;
+        }
+        h1 { color: #4CAF50; }
+        pre { background: #000; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>✅ HTML is Working!</h1>
+    <div class="test">
+        <h3>Test 1: Basic HTML</h3>
+        <p>If you can see this, HTML is rendering correctly.</p>
+    </div>
+    
+    <div class="test" id="jstest">
+        <h3>Test 2: JavaScript</h3>
+        <p id="jsstatus">Testing...</p>
+    </div>
+    
+    <div class="test">
+        <h3>Test 3: Network Status</h3>
+        <p>Current URL: <span id="currenturl"></span></p>
+        <p>Dev Server should be at: <code>http://localhost:5173</code></p>
+    </div>
+
+    <div class="test">
+        <h3>Instructions:</h3>
+        <ol>
+            <li>Open this page at: <strong>http://localhost:5173/diagnostic.html</strong></li>
+            <li>Take a screenshot</li>
+            <li>Press F12 to open console</li>
+            <li>Take another screenshot showing any console errors</li>
+        </ol>
+    </div>
+
+    <script>
+        // Test JavaScript
+        document.getElementById('jsstatus').textContent = '✅ JavaScript is working!';
+        document.getElementById('currenturl').textContent = window.location.href;
+        
+        // Log to console
+        console.log('✅ Diagnostic page loaded successfully');
+        console.log('Current location:', window.location.href);
+        console.log('If you see this, JavaScript console is working');
+    </script>
+</body>
+</html>

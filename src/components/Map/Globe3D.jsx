@@ -1,0 +1,244 @@
+import React, { useRef, useState, useMemo } from 'react';
+import { Canvas, useFrame, useThree } from '@react-three/fiber';
+import { OrbitControls, Stars, Html } from '@react-three/drei';
+import * as THREE from 'three';
+import Earth from './Earth';
+import BlockMarkers from './BlockMarkers';
+import Satellite from './Satellite';
+import blockData from '../../data/exploration-blocks.json';
+import { RotateCw, Play, Pause } from 'lucide-react';
+
+// Atmosphere Shader for better glow effect
+const AtmosphereShader = {
+    vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+    `,
+    fragmentShader: `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        uniform vec3 glowColor;
+        uniform float intensity;
+        void main() {
+            float brightness = pow(0.6 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
+            gl_FragColor = vec4(glowColor, 1.0) * brightness * intensity;
+        }
+    `
+};
+
+// Atmosphere Glow Component
+const AtmosphereGlow = ({ radius = 6.371 }) => {
+    return (
+        <mesh scale={[1.15, 1.15, 1.15]}>
+            <sphereGeometry args={[radius, 64, 64]} />
+            <shaderMaterial
+                vertexShader={AtmosphereShader.vertexShader}
+                fragmentShader={AtmosphereShader.fragmentShader}
+                uniforms={{
+                    glowColor: { value: new THREE.Color(0.5, 0.7, 1.0) },
+                    intensity: { value: 1.2 }
+                }}
+                side={THREE.BackSide}
+                blending={THREE.AdditiveBlending}
+                transparent={true}
+                depthWrite={false}
+            />
+        </mesh>
+    );
+};
+
+// Enhanced Sun Light with Animation
+const SunLight = () => {
+    const lightRef = useRef();
+
+    useFrame(({ clock }) => {
+        if (lightRef.current) {
+            const time = clock.getElapsedTime() * 0.05;
+            lightRef.current.position.x = Math.cos(time) * 25;
+            lightRef.current.position.z = Math.sin(time) * 25;
+            lightRef.current.position.y = 15;
+        }
+    });
+
+    return (
+        <directionalLight
+            ref={lightRef}
+            intensity={2.5}
+            color="#ffffff"
+            castShadow
+            shadow-mapSize={[2048, 2048]}
+            shadow-camera-far={100}
+            shadow-camera-left={-15}
+            shadow-camera-right={15}
+            shadow-camera-top={15}
+            shadow-camera-bottom={-15}
+        />
+    );
+};
+
+// Scene Content
+const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused, isAutoRotating, theme, onSatelliteClick }) => {
+    const earthRadius = 6.371;
+    const controlsRef = useRef();
+    const { camera } = useThree();
+
+    // Indonesia Coordinates (Approximate Center)
+    // Latitude: -2.5, Longitude: 118.0
+    // Convert to Vector3 on sphere surface (Radius ~6.5 for satellite orbit)
+    const satellitePosition = useMemo(() => {
+        const lat = -2.5;
+        const lon = 118.0;
+        const radius = 9.5; // Orbit radius (Increased to prevent overlap)
+        const phi = (90 - lat) * (Math.PI / 180);
+        const theta = (lon + 180) * (Math.PI / 180);
+        const x = -(radius * Math.sin(phi) * Math.cos(theta));
+        const z = (radius * Math.sin(phi) * Math.sin(theta));
+        const y = (radius * Math.cos(phi));
+        return [x, y, z];
+    }, []);
+
+    const groupRef = useRef();
+
+    useFrame((state, delta) => {
+        if (isFocused && controlsRef.current) {
+            // Smoothly move camera to focus on Indonesia
+            camera.position.lerp(new THREE.Vector3(10, 5, 10), 0.05);
+            controlsRef.current.target.lerp(new THREE.Vector3(0, 0, 0), 0.05);
+        }
+
+        // Rotate the entire group (Earth + Satellite + Blocks) together
+        if (groupRef.current && isAutoRotating && !isFocused) {
+            groupRef.current.rotation.y += 0.0002;
+        }
+    });
+
+    return (
+        <>
+            {/* Enhanced Lighting */}
+            <ambientLight intensity={1.5} color="#b0c4de" />
+            <SunLight />
+            <pointLight position={[-15, -10, -15]} intensity={1.5} color="#6699ff" />
+            <pointLight position={[15, 10, 15]} intensity={1.2} color="#88aaff" />
+
+            {/* Stars Background */}
+            <Stars
+                radius={300}
+                depth={60}
+                count={5000} // Reduced for performance
+                factor={7}
+                saturation={0}
+                fade
+                speed={1}
+            />
+
+            {/* Atmosphere Glow */}
+            <AtmosphereGlow radius={earthRadius} />
+
+            <group ref={groupRef} rotation={[0, 0, 0.41]}> {/* Earth Tilt */}
+                <Earth />
+
+                {/* Exploration Block Markers */}
+                <React.Suspense fallback={null}>
+                    <BlockMarkers
+                        blocks={blockData}
+                        earthRadius={earthRadius}
+                        onBlockSelect={onBlockSelect}
+                        selectedBlock={selectedBlock}
+                    />
+                </React.Suspense>
+
+                {/* Satellite positioned over Indonesia */}
+                <Satellite
+                    position={satellitePosition}
+                    scale={[0.02, 0.02, 0.02]}
+                    rotation={[0.5, 2, 0]}
+                    onClick={onSatelliteClick}
+                />
+            </group>
+
+            <OrbitControls
+                ref={controlsRef}
+                enableZoom={true}
+                enablePan={false}
+                enableRotate={true}
+                zoomSpeed={0.6}
+                rotateSpeed={0.5}
+                minDistance={8}
+                maxDistance={20}
+                autoRotate={isAutoRotating}
+                autoRotateSpeed={0.2}
+            />
+        </>
+    );
+};
+
+const Globe3D = ({ onBlockSelect, selectedBlock, theme, onSatelliteClick }) => {
+    const [isFocused, setIsFocused] = useState(false);
+    const [isAutoRotating, setIsAutoRotating] = useState(true);
+
+    return (
+        <div className="w-full h-full bg-black relative">
+            <Canvas
+                camera={{ position: [0, 0, 18], fov: 45 }}
+                gl={{
+                    antialias: true,
+                    toneMapping: THREE.ACESFilmicToneMapping,
+                    outputColorSpace: THREE.SRGBColorSpace
+                }}
+                shadows
+            >
+                <React.Suspense fallback={null}>
+                    <GlobeScene
+                        onBlockSelect={onBlockSelect}
+                        selectedBlock={selectedBlock}
+                        onSatelliteFocus={() => setIsFocused(true)}
+                        isFocused={isFocused}
+                        isAutoRotating={isAutoRotating}
+                        theme={theme}
+                        onSatelliteClick={onSatelliteClick}
+                    />
+                </React.Suspense>
+            </Canvas>
+
+            {/* Play/Pause Control (Bottom Right) */}
+            <div className="absolute bottom-8 right-8 z-20">
+                <button
+                    onClick={() => setIsAutoRotating(!isAutoRotating)}
+                    className="p-3 rounded-full glass hover:bg-white/10 text-white transition-all shadow-lg border border-white/10"
+                    title={isAutoRotating ? "Pause Rotation" : "Resume Rotation"}
+                >
+                    {isAutoRotating ? (
+                        <Pause className="w-5 h-5 fill-current" />
+                    ) : (
+                        <Play className="w-5 h-5 fill-current" />
+                    )}
+                </button>
+            </div>
+
+            {/* Back to Global View CTA */}
+            {isFocused && (
+                <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-20">
+                    <button
+                        onClick={() => setIsFocused(false)}
+                        className="px-6 py-3 bg-accent text-white rounded-full font-bold shadow-lg hover:bg-accent-hover transition-all flex items-center gap-2"
+                    >
+                        <RotateCw className="w-4 h-4" />
+                        Back to Global View
+                    </button>
+                </div>
+            )}
+
+            {/* Attribution - Removed as requested */}
+            {/* <div className="absolute bottom-4 right-4 text-xs text-text-secondary glass-panel px-3 py-2 rounded-lg">
+                🌍 Interactive Globe View | Data: SKK Migas
+            </div> */}
+        </div>
+    );
+};
+
+export default Globe3D;
