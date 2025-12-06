@@ -39,11 +39,11 @@ export default function PromotionBanner({ onClick, onViewOpportunity }) {
             {/* Main Floating Banner Card */}
             <motion.div
                 onClick={onClick}
-                className="relative bg-black/60 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl p-5 w-[380px] cursor-pointer group overflow-hidden"
+                className="relative bg-black/60 backdrop-blur-xl border border-accent/60 rounded-2xl p-5 w-[380px] cursor-pointer group overflow-hidden"
                 style={{
-                    boxShadow: '0 20px 40px -10px rgba(0,0,0,0.5)'
+                    boxShadow: '0 20px 40px -10px rgba(0,0,0,0.5), 0 0 25px rgba(58, 111, 248, 0.4)'
                 }}
-                whileHover={{ scale: 1.02, borderColor: 'rgba(255,255,255,0.2)' }}
+                whileHover={{ scale: 1.02, borderColor: 'rgba(58, 111, 248, 0.9)' }}
                 transition={{ duration: 0.3 }}
             >
                 {/* Subtle Gradient Glow */}
