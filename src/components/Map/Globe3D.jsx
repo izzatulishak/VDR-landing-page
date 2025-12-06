@@ -101,18 +101,37 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
         }
 
         // Update satellite position to follow camera
+        // Update satellite position: Hybrid "Physical + HUD" behavior
+        // 1. Distance changes with zoom (Physical behavior) -> User sees it get bigger
+        // 2. orientation relative to screen is locked (HUD behavior) -> User sees it at bottom
         if (camera) {
-            // Get camera direction
-            const cameraDirection = new THREE.Vector3();
-            camera.getWorldDirection(cameraDirection);
+            const cameraDir = new THREE.Vector3();
+            camera.getWorldDirection(cameraDir);
+            const camDist = camera.position.length();
 
-            // Position satellite in front of camera, offset to the left and down
-            const distance = 9.5; // Distance from Earth center
-            const offset = new THREE.Vector3(-1.5, -0.8, 0); // Offset to left and down
+            // Place it roughly at Earth's "atmosphere" level relative to camera
+            // If camera is at 20, obj at ~11.5. If cam at 10, obj at ~1.5.
+            const targetFromCenter = 8.5; // Radius where "Garuda" orbits
+            const hudDistance = Math.max(camDist - targetFromCenter, 2.0); // Clamp min distance
 
-            // Calculate position based on camera direction
-            const basePosition = cameraDirection.clone().multiplyScalar(-distance);
-            const finalPosition = basePosition.add(offset);
+            const basePosition = camera.position.clone().add(cameraDir.multiplyScalar(hudDistance));
+
+            // Camera Space Vectors
+            const camUp = new THREE.Vector3(0, 1, 0).applyQuaternion(camera.quaternion);
+            const camRight = new THREE.Vector3(1, 0, 0).applyQuaternion(camera.quaternion);
+
+            // Offsets
+            // Proportional to distance to maintain relative screen position (bottom 30%)
+            const verticalOffset = hudDistance * -0.32;
+
+            // Horizontal Sway
+            const time = state.clock.getElapsedTime();
+            const swayAmount = Math.sin(time * 0.5) * (hudDistance * 0.05); // Sway scales with distance too
+            const horizontalOffset = swayAmount;
+
+            // Apply offsets
+            const posWithVertical = basePosition.add(camUp.multiplyScalar(verticalOffset));
+            const finalPosition = posWithVertical.add(camRight.multiplyScalar(horizontalOffset));
 
             setSatellitePosition([finalPosition.x, finalPosition.y, finalPosition.z]);
         }
@@ -161,9 +180,9 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
 
             {/* Satellite positioned to follow camera */}
             <Satellite
-                key="garuda-model-v6"
+                key="garuda-model-v8"
                 position={satellitePosition}
-                scale={[0.7, 0.7, 0.7]}
+                scale={[0.5, 0.5, 0.5]}
                 rotation={[0.1, 3.4, 0]}
                 onClick={onSatelliteClick}
             />

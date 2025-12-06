@@ -11,11 +11,19 @@ const Satellite = ({ position, scale, rotation, onClick }) => {
     const { scene } = useGLTF(`${import.meta.env.BASE_URL}models/garuda/scene.gltf`);
     const clonedScene = scene.clone();
 
-    // Apply environment map
+    // Apply environment map and ensure HUD-like rendering (Always on top)
     clonedScene.traverse((child) => {
         if (child.isMesh) {
+            // Set high render order for the mesh
+            child.renderOrder = 999;
             if (child.material) {
                 child.material.envMapIntensity = 2.0;
+
+                // Disable depth testing to render on top of everything (HUD style)
+                child.material.depthTest = false;
+                child.material.depthWrite = false;
+                child.material.transparent = true;
+
                 child.material.needsUpdate = true;
             }
         }
