@@ -10,7 +10,11 @@ import { AnimatePresence } from 'framer-motion';
 import logoImg from './assets/logo.png';
 import taglineImg from './assets/Tagline.png';
 import SearchBar from './components/UI/SearchBar';
+import PromotionBanner from './components/UI/PromotionBanner';
+import PromotionsDrawer from './components/UI/PromotionsDrawer';
 import blockData from './data/exploration-blocks.json';
+
+import AuthorityInfoPanel from './components/UI/AuthorityInfoPanel';
 
 function App() {
   // UI State
@@ -24,6 +28,8 @@ function App() {
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [activeLayers, setActiveLayers] = useState({});
   const [resetViewTrigger, setResetViewTrigger] = useState(0);
+  const [isPromotionsOpen, setIsPromotionsOpen] = useState(false);
+  const [isAuthorityOpen, setIsAuthorityOpen] = useState(false);
 
   // Theme Toggle
   useEffect(() => {
@@ -83,12 +89,19 @@ function App() {
   };
 
   const handleSatelliteClick = () => {
-    setViewMode('map'); // Switch to map view when satellite is clicked on globe
+    setIsAuthorityOpen(true);
   };
 
   const handleSearch = (block) => {
     setViewMode('map');
     setSelectedBlock(block);
+  };
+
+  const handleViewMapFromPromotion = (coordinates) => {
+    setIsPromotionsOpen(false);
+    setViewMode('globe');
+    // You can add logic here to animate the globe to the coordinates if needed
+    console.log('Viewing map at coordinates:', coordinates);
   };
 
   // Extract searchable data
@@ -117,6 +130,25 @@ function App() {
       <div className="absolute top-8 left-1/2 -translate-x-1/2 z-50 w-full max-w-md px-4">
         <SearchBar data={searchableData} onSearch={handleSearch} />
       </div>
+
+      {/* Promotion Banner (Top Right) */}
+      <PromotionBanner
+        onClick={() => setIsPromotionsOpen(true)}
+        onViewOpportunity={handleViewMapFromPromotion}
+      />
+
+      {/* Promotions Drawer */}
+      <PromotionsDrawer
+        isOpen={isPromotionsOpen}
+        onClose={() => setIsPromotionsOpen(false)}
+        onViewOnMap={handleViewMapFromPromotion}
+      />
+
+      {/* Authority Info Panel */}
+      <AuthorityInfoPanel
+        isOpen={isAuthorityOpen}
+        onClose={() => setIsAuthorityOpen(false)}
+      />
 
       {/* 2. Main Content Area (Map Background) */}
       <div className="absolute inset-0 z-0">

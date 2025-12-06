@@ -1,0 +1,8 @@
+Model Information:
+* title:	Garuda
+* source:	https://sketchfab.com/3d-models/garuda-346548d0577b44ff9817e2007048f859
+* author:	WankWiuw (https://sketchfab.com/iwankurnia)
+
+Model License:
+* license type:	SKETCHFAB Standard (https://sketchfab.com/licenses)
+* requirements:	Under basic restrictions, use worldwide, on all types of media, commercially or not, and in all types of derivative works

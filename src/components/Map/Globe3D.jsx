@@ -161,9 +161,11 @@ const GlobeScene = ({ onBlockSelect, selectedBlock, onSatelliteFocus, isFocused,
 
             {/* Satellite positioned to follow camera */}
             <Satellite
+                key="garuda-model-v6"
                 position={satellitePosition}
-                scale={[0.02, 0.02, 0.02]}
-                rotation={[0.5, 2, 0]}
+                scale={[0.7, 0.7, 0.7]}
+                rotation={[0.1, 3.4, 0]}
+                onClick={onSatelliteClick}
             />
 
             {/* Environment Map for realistic reflections */}

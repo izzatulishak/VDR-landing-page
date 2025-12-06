@@ -61,6 +61,15 @@ const LeftDataLayersPanel = ({ onLayerToggle, activeFilter, setActiveFilter }) =
         open: "Blocks open for direct proposal"
     };
 
+    const filterStats = {
+        all: 142,
+        upcoming: 23,
+        running: 12,
+        pending: 45,
+        conditional: 8,
+        open: 54
+    };
+
     return (
         <>
             {/* Collapsed Icon Toolbar (Visible when collapsed) */}
@@ -143,13 +152,22 @@ const LeftDataLayersPanel = ({ onLayerToggle, activeFilter, setActiveFilter }) =
                                 <button
                                     onClick={() => setActiveFilter && setActiveFilter(filter)}
                                     className={clsx(
-                                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border",
+                                        "pl-3 pr-1.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border flex items-center gap-2",
                                         activeFilter === filter
                                             ? "bg-accent/20 border-accent/50 text-accent shadow-sm"
                                             : "bg-white/5 border-transparent text-text-secondary hover:text-text-primary hover:bg-white/10 hover:border-white/10"
                                     )}
                                 >
                                     {filter}
+                                    {/* Number Indicator (Circle Borderless) */}
+                                    <span className={clsx(
+                                        "min-w-[20px] h-5 px-1.5 rounded-full flex items-center justify-center text-[9px] font-bold transition-colors",
+                                        activeFilter === filter
+                                            ? "bg-accent text-white"
+                                            : "bg-white/10 text-text-secondary group-hover:bg-white/20 group-hover:text-white"
+                                    )}>
+                                        {filterStats[filter]}
+                                    </span>
                                 </button>
                                 {/* Tooltip */}
                                 <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-1.5 bg-header-bg/95 backdrop-blur-xl border border-header-border rounded-lg text-[10px] font-medium text-header-text opacity-0 group-hover:opacity-100 transition-all duration-200 pointer-events-none whitespace-nowrap shadow-xl z-50 translate-y-1 group-hover:translate-y-0">
