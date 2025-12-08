@@ -1,1 +1,0 @@
-import{c6 as e}from"./index-B68yOyRT.js";const f=e().vec3f("position").freeze(),c=e().vec3f("position").vec2f16("uv0").freeze(),v=e().vec3f("position").vec4u8("color").freeze(),i=e().vec3f("position").vec2f("uv0").freeze(),r=e().vec3f("position").vec2f("uv0").vec4u8("olidColor").freeze();export{r as c,c as f,f as o,i as r,v};
